@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>finbaba</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="app.js" defer></script>
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+</head>
+
+<body>
+    <header>
+        <!-- Header where the user can upload their bank statement -->
+        <h1>Finbaba - Your Financial Buddy</h1>
+        <div class="bankStatment-UploadBTN">
+            <button id="uploadBtn">Upload Bank Statement</button>
+            <input type="file" id="fileInput" style="display: none;" />
+        </div>
+    </header>
+
+    <!-- Main content area - with 3 sections that contain totalBalance, MonthlySpending and SavingGoals -->
+    <main id="dashboard-content-header">
+        <section id="totalBalance">
+            <h2>Total Balance</h2>
+            <p>$0.00</p>
+        </section>
+        <section id="monthlySpending">
+            <h2>Monthly Spending</h2>
+            <p>$0.00</p>
+        </section>
+        <section id="savingGoals">
+            <h2>Saving Goals</h2>
+            <p>$0.00</p>
+        </section>
+    </main>
+
+    <!-- This sections will show the spending trends using graph -->
+    <section id="spendingTrends">
+        <h2>Spending Trends</h2>
+        <p>Your spending patterns over the last 6 months:</p>
+        <canvas id="spendingChart"></canvas>
+    </section>
+
+    <!-- This section will show the users spending by category -->
+    <section id="spendingByCategory">
+        <h2>Spending by Category</h2>
+        <p>Where your money goes this month</p>
+        <canvas id="categoryChart"></canvas>
+    </section>
+
+    <!-- This section will show the user their saving goals -->
+    <section id="savingGoals">
+        <h2>Saving Goals</h2>
+        <p>Your progress towards your savings goals:</p>
+        <canvas id="savingsChart"></canvas>
+        <button id="addGoalBtn">Add New Goal</button>  
+    </section>
+
+    <!-- This section will give budget insights -->
+    <section id="budgetInsights">
+        <h2>Budget Insights</h2>
+        <p>Analyze your spending habits and find areas to save:</p>
+        <canvas id="budgetChart"></canvas>
+    </section>
+
+    <footer>
+        <p>&copy; 2025 Finbaba</p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="script.js"></script>
+</body>
