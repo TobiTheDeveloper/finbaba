@@ -17,9 +17,24 @@ let financialData = {
     savingsGoals: []
 };
 
-// API Base URL
+// API Base URL - Change this if accessing from different port
 const API_URL = 'http://localhost:3000/api';
 const USER_ID = 'user_' + Date.now(); // Generate unique user ID
+
+// Test backend connection on load
+async function testBackendConnection() {
+    try {
+        const response = await fetch(`${API_URL}/health`);
+        if (response.ok) {
+            console.log('✅ Backend connected successfully');
+        } else {
+            console.error('❌ Backend responded with error:', response.status);
+        }
+    } catch (error) {
+        console.error('❌ Cannot connect to backend:', error.message);
+        alert('⚠️ Backend server not running! Please start it with "npm start"');
+    }
+}
 
 // Chart instances
 let spendingChart, categoryChart, savingsChart, budgetChart;
