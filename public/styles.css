@@ -17,15 +17,81 @@ body {
 header {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
-    padding: 2rem 1rem;
-    text-align: center;
+    padding: 1.5rem 2rem;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
 header h1 {
-    font-size: 2.5rem;
-    margin-bottom: 1rem;
+    font-size: 2rem;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.header-actions {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.user-info {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.subscription-badge {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.subscription-badge.pro {
+    background: #10b981;
+}
+
+.subscription-badge.premium {
+    background: #f59e0b;
+}
+
+.subscription-badge.business {
+    background: #8b5cf6;
+}
+
+.btn-secondary, .btn-primary {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-block;
+    transition: background 0.3s;
+    font-size: 0.95rem;
+}
+
+.btn-primary {
+    background: white;
+    color: #667eea;
+}
+
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.btn-primary:hover {
+    background: #f0f0f0;
 }
 
 .bankStatment-UploadBTN {
@@ -237,4 +303,272 @@ html {
 
 ::-webkit-scrollbar-thumb:hover {
     background: #764ba2;
+}
+/* Upgrade Banner Styles */
+.upgrade-banner {
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    color: #78350f;
+    padding: 1rem 2rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.banner-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.banner-icon {
+    font-size: 2rem;
+}
+
+.banner-text strong {
+    display: block;
+    font-size: 1.1rem;
+    margin-bottom: 0.25rem;
+}
+
+.banner-text p {
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+.btn-upgrade {
+    background: #78350f;
+    color: white;
+    padding: 0.5rem 1.5rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    margin-left: auto;
+    transition: background 0.3s;
+}
+
+.btn-upgrade:hover {
+    background: #92400e;
+}
+
+.banner-close {
+    background: none;
+    border: none;
+    color: #78350f;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0 0.5rem;
+}
+
+/* Affiliate Recommendations Styles */
+#affiliateRecommendations {
+    background: #f9fafb;
+    padding: 2rem;
+    margin: 2rem 0;
+}
+
+#affiliateList {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.affiliate-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border: 2px solid transparent;
+    transition: all 0.3s;
+}
+
+.affiliate-card:hover {
+    border-color: #2563eb;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+}
+
+.affiliate-card-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.affiliate-icon {
+    font-size: 2.5rem;
+}
+
+.affiliate-card h3 {
+    color: #1f2937;
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+.affiliate-partner {
+    color: #6b7280;
+    font-size: 0.875rem;
+}
+
+.affiliate-card p {
+    color: #4b5563;
+    margin-bottom: 1rem;
+    line-height: 1.5;
+}
+
+.affiliate-benefits {
+    list-style: none;
+    margin-bottom: 1rem;
+}
+
+.affiliate-benefits li {
+    color: #059669;
+    font-size: 0.9rem;
+    padding: 0.25rem 0;
+}
+
+.affiliate-benefits li::before {
+    content: "✓ ";
+    font-weight: bold;
+}
+
+.estimated-value {
+    background: #dcfce7;
+    color: #16a34a;
+    padding: 0.5rem;
+    border-radius: 6px;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.affiliate-cta {
+    display: block;
+    width: 100%;
+    background: #2563eb;
+    color: white;
+    text-align: center;
+    padding: 0.75rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: background 0.3s;
+}
+
+.affiliate-cta:hover {
+    background: #1d4ed8;
+}
+
+/* AI Recommendations Styles */
+#aiRecommendations {
+    background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%);
+    padding: 2rem;
+    margin: 2rem 0;
+    border-radius: 12px;
+}
+
+#recommendationsList {
+    display: grid;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.recommendation-card {
+    background: white;
+    border-left: 4px solid #8b5cf6;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.recommendation-card.high-priority {
+    border-left-color: #ef4444;
+}
+
+.recommendation-card.medium-priority {
+    border-left-color: #f59e0b;
+}
+
+.recommendation-card.low-priority {
+    border-left-color: #10b981;
+}
+
+.recommendation-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    margin-bottom: 0.75rem;
+}
+
+.recommendation-card h3 {
+    color: #1f2937;
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+.priority-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.priority-badge.high {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.priority-badge.medium {
+    background: #fed7aa;
+    color: #ea580c;
+}
+
+.priority-badge.low {
+    background: #d1fae5;
+    color: #059669;
+}
+
+.recommendation-card .description {
+    color: #4b5563;
+    margin-bottom: 0.75rem;
+}
+
+.recommendation-card .action {
+    color: #2563eb;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+}
+
+.potential-savings {
+    background: #dcfce7;
+    color: #16a34a;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-weight: 600;
+    display: inline-block;
+}
+
+/* Footer Updates */
+footer {
+    background: #1f2937;
+    color: white;
+    padding: 2rem;
+    margin-top: 4rem;
+}
+
+.footer-links {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-bottom: 1rem;
+}
+
+.footer-links a {
+    color: #9ca3af;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.footer-links a:hover {
+    color: white;
 }

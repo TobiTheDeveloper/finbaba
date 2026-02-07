@@ -19,7 +19,52 @@ let financialData = {
 
 // API Base URL - Change this if accessing from different port
 const API_URL = 'http://localhost:3000/api';
-const USER_ID = 'user_' + Date.now(); // Generate unique user ID
+
+// Get authentication token
+function getAuthToken() {
+    return localStorage.getItem('token');
+}
+
+// Get current user
+function getCurrentUser() {
+    const userStr = localStorage.getItem('user');
+    return userStr ? JSON.parse(userStr) : null;
+}
+
+// Check if user is authenticated
+function isAuthenticated() {
+    return !!getAuthToken();
+}
+
+// Logout user
+function logout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.href = 'login.html';
+}
+
+// Update header with user info
+function updateHeader() {
+    const user = getCurrentUser();
+    
+    if (user) {
+        document.getElementById('userInfo').style.display = 'flex';
+        document.getElementById('guestActions').style.display = 'none';
+        document.getElementById('userName').textContent = user.name || user.email;
+        
+        const badge = document.getElementById('subscriptionBadge');
+        badge.textContent = user.subscription?.tier || 'Free';
+        badge.className = 'subscription-badge ' + (user.subscription?.tier || 'free');
+        
+        // Show upgrade banner for free users
+        if (user.subscription?.tier === 'free') {
+            document.getElementById('upgradeBanner').style.display = 'block';
+        }
+    } else {
+        document.getElementById('userInfo').style.display = 'none';
+        document.getElementById('guestActions').style.display = 'flex';
+    }
+}
 
 // Test backend connection on load
 async function testBackendConnection() {
@@ -32,7 +77,7 @@ async function testBackendConnection() {
         }
     } catch (error) {
         console.error('❌ Cannot connect to backend:', error.message);
-        alert('⚠️ Backend server not running! Please start it with "npm start"');
+        // Don't show alert in production
     }
 }
 
@@ -41,9 +86,18 @@ let spendingChart, categoryChart, savingsChart, budgetChart;
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', () => {
+    updateHeader();
     initializeEventListeners();
     initializeCharts();
-    checkExistingData();
+    
+    if (isAuthenticated()) {
+        checkExistingData();
+        loadAffiliateRecommendations();
+        loadAIRecommendations();
+    } else {
+        // Show guest message
+        console.log('Guest mode - please login to save data');
+    }
 });
 
 // Event Listeners
@@ -51,20 +105,51 @@ function initializeEventListeners() {
     const uploadBtn = document.getElementById('uploadBtn');
     const fileInput = document.getElementById('fileInput');
     const addGoalBtn = document.getElementById('addGoalBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const accountBtn = document.getElementById('accountBtn');
 
-    uploadBtn.addEventListener('click', () => fileInput.click());
+    uploadBtn.addEventListener('click', () => {
+        if (!isAuthenticated()) {
+            if (confirm('Please login to upload bank statements. Go to login page?')) {
+                window.location.href = 'login.html';
+            }
+            return;
+        }
+        fileInput.click();
+    });
+    
     fileInput.addEventListener('change', handleFileUpload);
     addGoalBtn.addEventListener('click', showAddGoalModal);
+    
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', logout);
+    }
+    
+    if (accountBtn) {
+        accountBtn.addEventListener('click', () => {
+            window.location.href = 'pricing.html';
+        });
+    }
 }
 
 // Check for existing data
 async function checkExistingData() {
+    if (!isAuthenticated()) return;
+    
     try {
-        const response = await fetch(`${API_URL}/financial-data/${USER_ID}`);
+        const response = await fetch(`${API_URL}/financial-data`, {
+            headers: {
+                'Authorization': 'Bearer ' + getAuthToken()
+            }
+        });
+        
         if (response.ok) {
             const data = await response.json();
             financialData = data;
             updateDashboard();
+        } else if (response.status === 401) {
+            // Token expired
+            logout();
         }
     } catch (error) {
         console.log('No existing data found');
@@ -76,6 +161,12 @@ async function handleFileUpload(event) {
     const file = event.target.files[0];
     if (!file) return;
 
+    if (!isAuthenticated()) {
+        alert('Please login to upload bank statements');
+        window.location.href = 'login.html';
+        return;
+    }
+
     // Show loading state
     showLoadingState();
     
@@ -83,16 +174,28 @@ async function handleFileUpload(event) {
         // Create FormData
         const formData = new FormData();
         formData.append('bankStatement', file);
-        formData.append('userId', USER_ID);
 
         // Upload to backend
         const response = await fetch(`${API_URL}/upload`, {
             method: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + getAuthToken()
+            },
             body: formData
         });
 
         if (!response.ok) {
-            throw new Error('Upload failed');
+            const error = await response.json();
+            
+            // Handle usage limit errors
+            if (response.status === 429) {
+                if (confirm(error.message + '\n\nWould you like to upgrade now?')) {
+                    window.location.href = 'pricing.html';
+                }
+                throw new Error(error.message);
+            }
+            
+            throw new Error(error.error || 'Upload failed');
         }
 
         const result = await response.json();
@@ -100,6 +203,17 @@ async function handleFileUpload(event) {
         if (result.success) {
             financialData = result.data;
             updateDashboard();
+            
+            // Display affiliate recommendations
+            if (result.data.affiliateRecommendations) {
+                displayAffiliateRecommendations(result.data.affiliateRecommendations);
+            }
+            
+            // Display AI recommendations for premium users
+            if (result.data.aiRecommendations) {
+                displayAIRecommendations(result.data.aiRecommendations);
+            }
+            
             alert('✅ Bank statement processed successfully!');
         } else {
             throw new Error(result.error || 'Processing failed');
@@ -412,5 +526,173 @@ async function showAddGoalModal() {
     } catch (error) {
         console.error('Error adding goal:', error);
         alert('❌ Error adding goal');
+    }
+}
+// Load and display affiliate recommendations
+async function loadAffiliateRecommendations() {
+    if (!isAuthenticated()) return;
+    
+    try {
+        const response = await fetch(`${API_URL}/affiliate-recommendations`, {
+            headers: {
+                'Authorization': 'Bearer ' + getAuthToken()
+            }
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            if (data.recommendations && data.recommendations.length > 0) {
+                displayAffiliateRecommendations(data.recommendations);
+            }
+        }
+    } catch (error) {
+        console.error('Error loading affiliate recommendations:', error);
+    }
+}
+
+// Display affiliate recommendations
+function displayAffiliateRecommendations(recommendations) {
+    const container = document.getElementById('affiliateList');
+    if (!container || !recommendations || recommendations.length === 0) return;
+    
+    container.innerHTML = recommendations.map(rec => `
+        <div class="affiliate-card">
+            <div class="affiliate-card-header">
+                <span class="affiliate-icon">${rec.icon}</span>
+                <div>
+                    <h3>${rec.product}</h3>
+                    <div class="affiliate-partner">${rec.partner}</div>
+                </div>
+            </div>
+            <p>${rec.description}</p>
+            <ul class="affiliate-benefits">
+                ${rec.benefits.map(b => `<li>${b}</li>`).join('')}
+            </ul>
+            <div class="estimated-value">
+                Potential Value: $${rec.estimatedValue.toFixed(2)}/year
+            </div>
+            <a href="${rec.affiliateLink}" 
+               class="affiliate-cta" 
+               onclick="trackAffiliateClick('${rec.id}', event)"
+               target="_blank">
+                ${rec.ctaText}
+            </a>
+        </div>
+    `).join('');
+}
+
+// Track affiliate click
+async function trackAffiliateClick(partnerId, event) {
+    if (!isAuthenticated()) return;
+    
+    try {
+        await fetch(`${API_URL}/affiliate-click`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + getAuthToken()
+            },
+            body: JSON.stringify({
+                partnerId: partnerId,
+                recommendationId: Date.now()
+            })
+        });
+    } catch (error) {
+        console.error('Error tracking click:', error);
+    }
+}
+
+// Load and display AI recommendations (Premium feature)
+async function loadAIRecommendations() {
+    if (!isAuthenticated()) return;
+    
+    const user = getCurrentUser();
+    if (!user || (user.subscription?.tier !== 'premium' && user.subscription?.tier !== 'business')) {
+        return; // AI recommendations only for premium users
+    }
+    
+    try {
+        const response = await fetch(`${API_URL}/ai-recommendations`, {
+            headers: {
+                'Authorization': 'Bearer ' + getAuthToken()
+            }
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            if (data.recommendations && data.recommendations.length > 0) {
+                displayAIRecommendations(data.recommendations);
+            }
+        }
+    } catch (error) {
+        console.error('Error loading AI recommendations:', error);
+    }
+}
+
+// Display AI recommendations
+function displayAIRecommendations(recommendations) {
+    const container = document.getElementById('recommendationsList');
+    const section = document.getElementById('aiRecommendations');
+    
+    if (!container || !section || !recommendations || recommendations.length === 0) return;
+    
+    section.style.display = 'block';
+    
+    container.innerHTML = recommendations.map(rec => `
+        <div class="recommendation-card ${rec.priority}-priority">
+            <div class="recommendation-header">
+                <h3>${rec.title}</h3>
+                <span class="priority-badge ${rec.priority}">${rec.priority}</span>
+            </div>
+            <p class="description">${rec.description}</p>
+            <p class="action">${rec.action}</p>
+            ${rec.potentialSavings > 0 ? `
+                <div class="potential-savings">
+                    Potential Annual Savings: $${rec.potentialSavings.toFixed(2)}
+                </div>
+            ` : ''}
+        </div>
+    `).join('');
+}
+
+// Export data (Premium feature)
+async function exportData(format) {
+    if (!isAuthenticated()) {
+        alert('Please login to export data');
+        return;
+    }
+    
+    const user = getCurrentUser();
+    if (user.subscription?.tier === 'free') {
+        if (confirm('Data export requires Pro subscription or higher. Upgrade now?')) {
+            window.location.href = 'pricing.html';
+        }
+        return;
+    }
+    
+    try {
+        const response = await fetch(`${API_URL}/export/${format}`, {
+            headers: {
+                'Authorization': 'Bearer ' + getAuthToken()
+            }
+        });
+        
+        if (response.ok) {
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `finbaba-export.${format}`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        } else {
+            const error = await response.json();
+            alert(error.message || 'Export failed');
+        }
+    } catch (error) {
+        console.error('Export error:', error);
+        alert('Export failed');
     }
 }

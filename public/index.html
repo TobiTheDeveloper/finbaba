@@ -11,13 +11,39 @@
 
 <body>
     <header>
-        <!-- Header where the user can upload their bank statement -->
-        <h1>Finbaba - Your Financial Buddy</h1>
-        <div class="bankStatment-UploadBTN">
-            <button id="uploadBtn">Upload Bank Statement</button>
-            <input type="file" id="fileInput" style="display: none;" />
+        <div class="header-content">
+            <h1>Finbaba - Your Financial Buddy</h1>
+            <div class="header-actions">
+                <div class="user-info" id="userInfo" style="display: none;">
+                    <span id="userName"></span>
+                    <span class="subscription-badge" id="subscriptionBadge">Free</span>
+                    <button id="accountBtn" class="btn-secondary">Account</button>
+                    <button id="logoutBtn" class="btn-secondary">Logout</button>
+                </div>
+                <div class="guest-actions" id="guestActions">
+                    <a href="login.html" class="btn-secondary">Login</a>
+                    <a href="signup.html" class="btn-primary">Sign Up</a>
+                </div>
+                <div class="bankStatment-UploadBTN">
+                    <button id="uploadBtn">Upload Bank Statement</button>
+                    <input type="file" id="fileInput" style="display: none;" />
+                </div>
+            </div>
         </div>
     </header>
+    
+    <!-- Upgrade Banner for Free Users -->
+    <div id="upgradeBanner" class="upgrade-banner" style="display: none;">
+        <div class="banner-content">
+            <span class="banner-icon">🚀</span>
+            <div class="banner-text">
+                <strong>Unlock Premium Features</strong>
+                <p>Get unlimited uploads, advanced analytics, and more with Pro</p>
+            </div>
+            <a href="pricing.html" class="btn-upgrade">Upgrade Now</a>
+            <button class="banner-close" onclick="document.getElementById('upgradeBanner').style.display='none'">×</button>
+        </div>
+    </div>
 
     <!-- Main content area - with 3 sections that contain totalBalance, MonthlySpending and SavingGoals -->
     <main id="dashboard-content-header">
@@ -63,9 +89,30 @@
         <p>Analyze your spending habits and find areas to save:</p>
         <canvas id="budgetChart"></canvas>
     </section>
+    
+    <!-- AI Recommendations (Premium Feature) -->
+    <section id="aiRecommendations" style="display: none;">
+        <h2>🤖 AI-Powered Recommendations</h2>
+        <p>Personalized insights to optimize your finances</p>
+        <div id="recommendationsList"></div>
+    </section>
+    
+    <!-- Affiliate Recommendations -->
+    <section id="affiliateRecommendations">
+        <h2>💡 Recommended for You</h2>
+        <p>Financial products that could benefit you based on your spending</p>
+        <div id="affiliateList"></div>
+    </section>
 
     <footer>
-        <p>&copy; 2025 Finbaba</p>
+        <div class="footer-links">
+            <a href="pricing.html">Pricing</a>
+            <a href="#">About</a>
+            <a href="#">Privacy</a>
+            <a href="#">Terms</a>
+            <a href="#">Contact</a>
+        </div>
+        <p>&copy; 2025 Finbaba. All rights reserved.</p>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
